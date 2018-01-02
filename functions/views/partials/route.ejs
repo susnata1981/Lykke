@@ -1,0 +1,66 @@
+<div class="row">
+  <div class="offset-md-1 col-md-4">
+    <div class="row">
+      <div class="col-md-12">
+        <h6>All Routes</h6>
+
+        <% if (routes) { %>
+          <div id="routes">
+            <% routes.forEach(function(r, i) { %>
+              <ul class="list-inline border border-secondary">
+                <li class="route-item list-inline-item" onClick="MODULE.routeItemClickHandler(event)">
+                  <%= r.name %>
+                </li>
+                <li class="list-inline-item">
+                  <button type="button" class="btn btn-link" data-toggle="modal" data-target="#editRouteModal" data-routename="<%= r.name %>">edit</button>
+                </li>
+                <li class="list-inline-item">
+                  <form id="remove-route-form" action="/remove_route" method="post">
+                    <input type="hidden" name="route_name" value="<%= r.name %>" />
+                    <a href="#" onClick="document.getElementById('remove-route-form').submit()">delete</a>
+                  </form>
+                </li>
+              </ul>
+              <% }); %>
+                <% } %>
+          </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-12">
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addRouteModal">Add Route</button>
+
+        <div class="modal fade" id="addRouteModal" tabindex="-1" role="dialog" aria-hidden="true">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Add Route</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <form method="post" action="/add_route">
+                  <div class="form-group">
+                    <label for="route_name">Route Name</label>
+                    <input type="text" name="route_name" />
+                  </div>
+                  <input type="submit" class="btn" value="Add Route">
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <h6>Current Route</h6>
+    <div id="routeDetails" class="box" ondrop="MODULE.drop(event)" ondragover="MODULE.allowDrop(event)">
+
+    </div>
+  </div>
+</div>
+
+<%- include('partials/edit_route'); %>
+  ''
