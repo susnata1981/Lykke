@@ -1,3 +1,6 @@
+import businessEntry from './business';
+import routeEntry from './routes';
+
 let MODULE = (function () {
   let obj = {};
   let selectedRouteKey = -1;
@@ -68,8 +71,27 @@ let MODULE = (function () {
 }());
 
 $(function () {
-  console.log('on document loaded');
+  console.log('Document loaded...');
+
+  const config = {
+    apiKey: "AIzaSyCerTXhFJVrxLwU6BXjkuG2v4iK88EXE4U",
+    authDomain: "lykke-1e98b.firebaseapp.com",
+    databaseURL: "https://lykke-1e98b.firebaseio.com",
+    projectId: "lykke-1e98b",
+    storageBucket: "lykke-1e98b.appspot.com",
+    messagingSenderId: "91650177123"
+  };
+  firebase.initializeApp(config);
+  // firebase.database().ref().set({ routes: { time_created: new Date()} });
+  // firebase.database().ref().child('posts').set({'success': true});
+  
   MODULE.setup();
+  // Hacky way to segment functionality.
+  if (window.location.href.indexOf('route') === -1) {
+    businessEntry.initialize();
+  } else {
+    routeEntry.initialize();
+  }
 });
 
 

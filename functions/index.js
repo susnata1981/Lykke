@@ -16,13 +16,25 @@ const logger = require('morgan');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const app = express();
+const hbs = require('express-handlebars');
 
 // Error definitions
 const MISSING_BUSINESS_NAME = 'Missing business name';
 const MISSING_ROUTE_NAME = 'Missing route name';
 
 app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'ejs');
+app.engine('.hbs', hbs({
+  extname: '.hbs',
+  layoutsDir: path.join(__dirname, 'views', 'layouts'),
+  partialsDir: path.join(__dirname, 'views', 'partials'),
+  defaultLayout: 'main',
+  helpers: {
+      foo: function () {
+          return "foo";
+      }
+  }
+}));
+app.set('view engine', 'hbs');
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -49,26 +61,11 @@ app.get('/', (req, res) => {
           address: item.val().address,
           time_created: item.val().time_created
         }
-        console.log(`reuslt -> ${JSON.stringify(result)}`);
-        
-        // result.push({
-        //   name: item.key,
-        //   address: item.val().address,
-        //   time_created: item.val().time_created
-        // });
       });
       console.log('resolving businessPromise -> ' + JSON.stringify(result));      
       resolve(result);
     });
   });
-
-  // let routePromise = new Promise((resolve, reject) => {
-  //   let ref = admin.database().ref('/routes');
-  //   ref.once('value').then(snapshot => {
-  //     console.log(`routes -> ${JSON.stringify(snapshot)}`);
-  //     resolve(snapshot);
-  //   });
-  // });
 
   let routePromise = new Promise((resolve, reject) => {
     var ref = admin.database().ref('/routes');
@@ -92,10 +89,15 @@ app.get('/', (req, res) => {
       };      
       fill_route_data(data);
       console.log(`After Resolved promises ${JSON.stringify(data['routes'])}`);
-      res.render('index', { businesses: [], routes: [] });
+      // res.render('index', { businesses: [], routes: [], business_name: '', business_address:'' });
+      res.render('index');
     }).catch(error => {
       console.log('Failed to resolve promises ' + error);
     });
+});
+
+app.get('/routes', (req, res) => {
+  res.render('routes');
 });
 
 function fill_route_data(data) {
@@ -301,8 +303,7 @@ app.post('/add_business', (req, res) => {
 });
 
 app.post('/remove_business', (req, res) => {
-  console.log('requesting add business');
-  console.log(`form params - ${req.body.name}`);
+  console.log('requesting remove business '+req.body.name);
 
   if (!req.body.name) {
     res.render('error', {
@@ -310,7 +311,8 @@ app.post('/remove_business', (req, res) => {
     });
   }
   admin.database().ref('/businesses/' + req.body.name).remove();
-  res.redirect('/');
+  // res.redirect('/');
+  res.send(JSON.stringify({success: true}));
 });
 
 app.post('/add_route', (req, res) => {
